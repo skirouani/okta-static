@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — MyApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink:#0d0d10; --paper:#f5f3ef; --accent:#e63f2a; --muted:#8a8880; --border:#e8e4de; }
+    body { background:var(--paper); font-family:'DM Sans',sans-serif; color:var(--ink); min-height:100vh; }
+    nav { background:var(--ink); display:flex; align-items:center; justify-content:space-between; padding:1rem 2.5rem; position:sticky; top:0; z-index:10; }
+    .nav-brand { display:flex; align-items:center; gap:.6rem; }
+    .brand-dot { width:22px; height:22px; background:#e63f2a; border-radius:50%; }
+    .brand-name { font-family:'Syne',sans-serif; font-weight:800; color:#fff; font-size:1.1rem; }
+    .nav-right { display:flex; align-items:center; gap:1.25rem; }
+    .user-pill { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.4rem 1rem; color:#ccc; font-size:.85rem; }
+    .user-pill span { color:#fff; font-weight:500; }
+    .btn-logout { background:transparent; border:1.5px solid rgba(255,255,255,.18); border-radius:8px; color:#aaa; font-family:'Syne',sans-serif; font-weight:600; font-size:.8rem; padding:.4rem .9rem; cursor:pointer; transition:all .2s; }
+    .btn-logout:hover { border-color:#e63f2a; color:#e63f2a; }
+    main { max-width:1100px; margin:0 auto; padding:3rem 2rem; }
+    .page-header { margin-bottom:2.5rem; }
+    .greeting { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(1.75rem,4vw,2.75rem); letter-spacing:-.03em; line-height:1.1; }
+    .greeting em { color:#e63f2a; font-style:normal; }
+    .sub { color:var(--muted); margin-top:.4rem; font-size:.95rem; }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.25rem; margin-bottom:2.5rem; }
+    .stat-card { background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:1.5rem; transition:transform .2s,box-shadow .2s; }
+    .stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,.07); }
+    .stat-card .label { font-size:.75rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:.5rem; }
+    .stat-card .value { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; letter-spacing:-.04em; }
+    .stat-card .delta { font-size:.78rem; color:#16a34a; margin-top:.25rem; }
+    .stat-card.accent-card { background:#e63f2a; border-color:#e63f2a; }
+    .stat-card.accent-card .label,.stat-card.accent-card .value,.stat-card.accent-card .delta { color:#fff; }
+    .content-row { display:grid; grid-template-columns:1fr 340px; gap:1.5rem; }
+    @media(max-width:800px){.content-row{grid-template-columns:1fr;}}
+    .panel { background:#fff; border:1.5px solid var(--border); border-radius:16px; padding:1.5rem; }
+    .panel h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; }
+    .activity-item { display:flex; align-items:flex-start; gap:.9rem; padding:.75rem 0; border-bottom:1px solid var(--border); }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-dot { width:8px; height:8px; border-radius:50%; background:#e63f2a; margin-top:5px; flex-shrink:0; }
+    .activity-dot.green{background:#16a34a;} .activity-dot.blue{background:#2563eb;}
+    .activity-text { font-size:.88rem; line-height:1.5; }
+    .activity-text .time { color:var(--muted); font-size:.78rem; }
+    .info-row { display:flex; justify-content:space-between; align-items:center; padding:.6rem 0; border-bottom:1px solid var(--border); font-size:.85rem; }
+    .info-row:last-child{border-bottom:none;}
+    .info-key{color:var(--muted);}
+    .info-val{font-weight:500;word-break:break-all;text-align:right;max-width:58%;}
+    .badge{background:#dcfce7;color:#15803d;font-size:.72rem;font-weight:600;letter-spacing:.04em;padding:.2em .6em;border-radius:999px;text-transform:uppercase;}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-brand"><div class="brand-dot"></div><span class="brand-name">MyApp</span></div>
+    <div class="nav-right">
+      <div class="user-pill">Signed in as <span id="nav-name">…</span></div>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </nav>
+  <main>
+    <div class="page-header">
+      <div class="greeting">Good to see you, <em id="first-name">…</em></div>
+      <div class="sub">Here's what's happening with your account today.</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card accent-card"><div class="label">Status</div><div class="value">Active</div><div class="delta">✓ Okta authenticated</div></div>
+      <div class="stat-card"><div class="label">Sessions</div><div class="value">1</div><div class="delta">↑ This device</div></div>
+      <div class="stat-card"><div class="label">Last login</div><div class="value" id="login-time">—</div><div class="delta">Just now</div></div>
+      <div class="stat-card"><div class="label">Auth provider</div><div class="value">Okta</div><div class="delta">Classic engine</div></div>
+    </div>
+    <div class="content-row">
+      <div class="panel">
+        <h3>Recent activity</h3>
+        <div class="activity-item"><div class="activity-dot"></div><div class="activity-text">Signed in via Okta Sign-In Widget<div class="time" id="login-full-time">—</div></div></div>
+        <div class="activity-item"><div class="activity-dot blue"></div><div class="activity-text">Session established<div class="time">Just now</div></div></div>
+        <div class="activity-item"><div class="activity-dot green"></div><div class="activity-text">ID token verified<div class="time">Just now</div></div></div>
+      </div>
+      <div class="panel">
+        <h3>Session info</h3>
+        <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="info-name">—</span></div>
+        <div class="info-row"><span class="info-key">Email</span><span class="info-val" id="info-email">—</span></div>
+        <div class="info-row"><span class="info-key">Subject</span><span class="info-val" id="info-sub">—</span></div>
+        <div class="info-row"><span class="info-key">Auth method</span><span class="info-val">Okta OIDC</span></div>
+        <div class="info-row"><span class="info-key">Status</span><span class="info-val"><span class="badge">Verified</span></span></div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const raw = sessionStorage.getItem('okta_user');
+    if (!raw) { window.location.href = '/'; }
+    else {
+      const user = JSON.parse(raw);
+      const first = user.name.split(' ')[0];
+      document.getElementById('first-name').textContent = first;
+      document.getElementById('nav-name').textContent = user.name;
+      document.getElementById('info-name').textContent = user.name;
+      document.getElementById('info-email').textContent = user.email || '—';
+      document.getElementById('info-sub').textContent = user.sub || '—';
+      const now = new Date();
+      document.getElementById('login-time').textContent = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('login-full-time').textContent = now.toLocaleString([],{dateStyle:'medium',timeStyle:'short'});
+    }
+    function logout() {
+      sessionStorage.removeItem('okta_user');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

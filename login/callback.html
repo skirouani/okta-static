@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><title>Authenticating…</title>
+  <script src="https://global.oktacdn.com/okta-signin-widget/7.14.0/js/okta-sign-in.min.js" crossorigin="anonymous"></script>
+  <style>
+    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f3ef;font-family:sans-serif;}
+    .spinner{width:40px;height:40px;border:3px solid #e8e4de;border-top-color:#e63f2a;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    p{color:#8a8880;font-size:.9rem;text-align:center;}
+  </style>
+</head>
+<body>
+  <div><div class="spinner"></div><p>Completing sign-in…</p></div>
+  <script src="/js/config.js"></script>
+  <script>
+    (async () => {
+      try {
+        const signIn = new OktaSignIn({
+          issuer: OKTA_CONFIG.issuer,
+          clientId: OKTA_CONFIG.clientId,
+          redirectUri: window.location.origin + '/login/callback.html',
+          scopes: ['openid', 'profile', 'email'],
+          useInteractionCodeFlow: false,
+          useClassicEngine: true,
+          tokenManager: { storage: 'sessionStorage' },
+        });
+        const tokens = await signIn.authClient.token.parseFromUrl();
+        signIn.authClient.tokenManager.setTokens(tokens.tokens);
+        const claims = tokens.tokens.idToken.claims;
+        sessionStorage.setItem('okta_user', JSON.stringify({
+          name:  claims.name || claims.preferred_username || 'User',
+          email: claims.email || '',
+          sub:   claims.sub
+        }));
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        window.location.href = '/?error=' + encodeURIComponent(err.message);
+      }
+    })();
+  </script>
+</body>
+</html>
