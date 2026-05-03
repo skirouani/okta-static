@@ -60,26 +60,26 @@
       <div id="okta-sign-in-widget"></div>
     </div>
   </div>
-  <script src="/js/config.js"></script>
-  <script>
-    const signIn = new OktaSignIn({
-      issuer:    OKTA_CONFIG.issuer,
-      clientId:  OKTA_CONFIG.clientId,
-      redirectUri: window.location.origin + '/login/callback.html',
-      scopes:    ['openid', 'profile', 'email'],
-      useInteractionCodeFlow: false,
-      useClassicEngine: true,
-      tokenManager: { storage: 'sessionStorage' },
-      features: { registration: false },
-      i18n: { en: { 'primaryauth.title': 'Sign in to MyApp' } }
-    });
+<script src="/js/config.js"></script>
+<script>
+  const signIn = new OktaSignIn({
+    issuer:    OKTA_CONFIG.issuer,
+    clientId:  OKTA_CONFIG.clientId,
+    redirectUri: window.location.origin + '/login/callback.html',
+    scopes:    ['openid', 'profile', 'email'],
+    useInteractionCodeFlow: true,
+    useClassicEngine: false,
+    tokenManager: { storage: 'sessionStorage' },
+    features: { registration: false },
+    i18n: { en: { 'primaryauth.title': 'Sign in to MyApp' } }
+  });
 
-    signIn.showSignInAndRedirect({ el: '#okta-sign-in-widget' })
-      .catch(err => {
-        const b = document.getElementById('error-banner');
-        b.style.display = 'block';
-        b.textContent = 'Widget error: ' + err.message;
-      });
-  </script>
+  signIn.showSignInAndRedirect({ el: '#okta-sign-in-widget' })
+    .catch(err => {
+      const banner = document.getElementById('error-banner');
+      banner.style.display = 'block';
+      banner.textContent = 'Error: ' + err.message;
+    });
+</script>
 </body>
 </html>

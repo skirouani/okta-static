@@ -14,30 +14,15 @@
   <div><div class="spinner"></div><p>Completing sign-in…</p></div>
   <script src="/js/config.js"></script>
   <script>
-    (async () => {
-      try {
-        const signIn = new OktaSignIn({
-          issuer: OKTA_CONFIG.issuer,
-          clientId: OKTA_CONFIG.clientId,
-          redirectUri: window.location.origin + '/login/callback.html',
-          scopes: ['openid', 'profile', 'email'],
-          useInteractionCodeFlow: false,
-          useClassicEngine: true,
-          tokenManager: { storage: 'sessionStorage' },
-        });
-        const tokens = await signIn.authClient.token.parseFromUrl();
-        signIn.authClient.tokenManager.setTokens(tokens.tokens);
-        const claims = tokens.tokens.idToken.claims;
-        sessionStorage.setItem('okta_user', JSON.stringify({
-          name:  claims.name || claims.preferred_username || 'User',
-          email: claims.email || '',
-          sub:   claims.sub
-        }));
-        window.location.href = '/dashboard.html';
-      } catch (err) {
-        window.location.href = '/?error=' + encodeURIComponent(err.message);
-      }
-    })();
+    const signIn = new OktaSignIn({
+  issuer: OKTA_CONFIG.issuer,
+  clientId: OKTA_CONFIG.clientId,
+  redirectUri: window.location.origin + '/login/callback.html',
+  scopes: ['openid', 'profile', 'email'],
+  useInteractionCodeFlow: true,
+  useClassicEngine: false,
+  tokenManager: { storage: 'sessionStorage' },
+});
   </script>
 </body>
 </html>
