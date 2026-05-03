@@ -65,7 +65,7 @@
   const signIn = new OktaSignIn({
     issuer:    OKTA_CONFIG.issuer,
     clientId:  OKTA_CONFIG.clientId,
-    redirectUri: window.location.origin + '/login/callback.html',
+    redirectUri: OKTA_CONFIG.redirectUri,
     scopes:    ['openid', 'profile', 'email'],
     useInteractionCodeFlow: true,
     useClassicEngine: false,
